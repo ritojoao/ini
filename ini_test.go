@@ -922,6 +922,21 @@ GITHUB = U;n;k;n;w;o;n
 				assert.Equal(t, "U#n#k#n#w#o#n", nameValue)
 				assert.Equal(t, "U;n;k;n;w;o;n", githubValue)
 			})
+
+			t.Run("cut value at the first inline comment symbol", func(t *testing.T) {
+				f, err := LoadSources(
+					LoadOptions{AllowPythonMultilineValues: false, SpaceBeforeInlineComment: true},
+					[]byte(`
+[author]
+SEMICOLON_FIRST = foo;bar ; note # ticket
+HASH_FIRST = foo#bar # note ; ticket
+`))
+				require.NoError(t, err)
+				require.NotNil(t, f)
+				sec := f.Section("author")
+				assert.Equal(t, "foo;bar", sec.Key("SEMICOLON_FIRST").String())
+				assert.Equal(t, "foo#bar", sec.Key("HASH_FIRST").String())
+			})
 		})
 	})
 
